@@ -50,10 +50,8 @@ class RetrofitClient @Inject constructor(
 
         return result.body()?.apply {
             logger.log("RetrofitClient", "resultCode = ${result.code()}")
-            (this as CodeResponse).resultCode = result.code()
+            this.resultCode = result.code()
         } as CodeResponse
-
     }
-
 }
 

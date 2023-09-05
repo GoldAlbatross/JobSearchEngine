@@ -18,11 +18,11 @@ import javax.inject.Inject
 
 class SearchViewModel @Inject constructor(
     private val searchVacanciesUseCase: SearchVacanciesUseCase,
-    logger: Logger
+    private val logger: Logger
 ) : BaseViewModel(logger) {
     
     private val _uiState: MutableStateFlow<SearchScreenState> =
-        MutableStateFlow(SearchScreenState.Default)
+        MutableStateFlow(SearchScreenState.Default(logger))
     private val _iconClearState: MutableStateFlow<IconClearState> =
         MutableStateFlow(IconClearState(""))
     
@@ -41,7 +41,7 @@ class SearchViewModel @Inject constructor(
         _iconClearState.value = IconClearState(query)
 
         if (query.isEmpty()) {
-            _uiState.value = SearchScreenState.Default
+            _uiState.value = SearchScreenState.Default(logger)
             searchJob?.cancel()
         }
         else if (latestSearchQuery != query) {
@@ -56,7 +56,7 @@ class SearchViewModel @Inject constructor(
     
     private fun loadJobList(query: String) {
         log(thisName, "loadJobList($query: String)")
-        _uiState.value = SearchScreenState.Loading
+        _uiState.value = SearchScreenState.Loading(logger)
     
         searchJob = viewModelScope.launch(Dispatchers.IO) {
             searchVacanciesUseCase
@@ -71,13 +71,14 @@ class SearchViewModel @Inject constructor(
         log(thisName, "processResult(${result.thisName}: FetchResult)")
         when {
             result.error != null -> {
-                _uiState.value = SearchScreenState.Error(result.error)
+                _uiState.value = SearchScreenState.Error(result.error, logger)
             }
             
             result.data != null -> {
                 _uiState.value = SearchScreenState.Content(
                     count = result.count ?: 0,
                     jobList = result.data,
+                    logger = logger,
                 )
             }
         }

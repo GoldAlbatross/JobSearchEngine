@@ -20,8 +20,7 @@ sealed interface SimilarVacanciesState {
             binding.placeHolder.visibility = View.GONE
             binding.recycler.visibility = View.VISIBLE
             val adapter = (binding.recycler.adapter as SearchAdapter)
-            adapter.list = list
-            adapter.notifyDataSetChanged()
+            adapter.submitList(list)
         }
     }
 }
