@@ -1,6 +1,7 @@
 package ru.practicum.android.diploma.search.di
 
 import android.content.Context
+import androidx.appcompat.content.res.AppCompatResources
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import dagger.Module
 import dagger.Provides
@@ -13,7 +14,9 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Converter
 import retrofit2.Retrofit
 import ru.practicum.android.diploma.BuildConfig
+import ru.practicum.android.diploma.R
 import ru.practicum.android.diploma.di.annotations.ApplicationScope
+import ru.practicum.android.diploma.di.components.AppComponent
 import ru.practicum.android.diploma.search.data.network.HhApiService
 import ru.practicum.android.diploma.search.data.network.NetworkClient
 import ru.practicum.android.diploma.search.data.network.RetrofitClient
@@ -23,6 +26,7 @@ import java.io.File
 import javax.inject.Named
 
 private const val BASE_URL = "https://api.hh.ru"
+private const val APP_EMAIL = "margo.ivi@yandex.ru"
 
 @Module
 class SearchDataModule {
@@ -81,12 +85,13 @@ class SearchDataModule {
     
     @Named("authorization_key")
     @Provides
-    fun providesAuthInterceptor(): Interceptor {
+    fun providesAuthInterceptor(context: Context): Interceptor {
         return Interceptor { chain ->
             val request = chain
                 .request()
                 .newBuilder()
                 .addHeader("Authorization", "Bearer ${BuildConfig.HH_ACCESS_TOKEN}")
+                .addHeader("HH-User-Agent", "${context.getString(R.string.app_name)} ($APP_EMAIL)")
                 .build()
             
             chain.proceed(request)
